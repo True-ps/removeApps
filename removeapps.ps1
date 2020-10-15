@@ -11,7 +11,7 @@ $getConfirmation = $args[1] #e.g. yes to remove. empty parameter or something el
 #gets the OS architecture. can be used as condition.
 #$osarch = (Get-WmiObject win32_operatingsystem).osarchitecture
 
-#this function uses wmi to remove an app. it's much slower than the live one.
+#use wmi to remove an app. it's much slower than the live one.
 <#
 function _getApp($pappname)
 {
@@ -20,6 +20,7 @@ function _getApp($pappname)
 	$appAction | Format-List
 }
 #>
+
 function _removeApp($allregs)
 {
 	if (-not [string]::IsNullOrEmpty($pappname))
@@ -37,7 +38,11 @@ function _removeApp($allregs)
 						Write-host "I will try to silently remove it using the uninstall string"
 					
 						try
-						{	#this will simply...attempt to remove the app. If there are no errors, it will still count as a success.
+						{
+						<#will simply...attempt to remove the app. 
+						It will only work if:
+						- the app can be removed silently;
+						- the installer file is still present in the default \installer location.#>
 							$remove = Start-Process msiexec.exe -ArgumentList /x, $reg.PSChildName, /qn -Wait -NoNewWindow 
 							$measure = Measure-Command -Expression { $remove }
 							Write-Host $reg.DisplayName "successfully removed in " $measure.TotalSeconds "seconds"
